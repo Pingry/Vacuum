@@ -9,7 +9,7 @@ import java.util.Random;
  * Do not edit any of this code!
  *
  * @author burkhart
- * @version 0.21
+ * @version 12.11.17
  */
 public class VacuumWorld extends ActorWorld
 {

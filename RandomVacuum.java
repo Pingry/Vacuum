@@ -13,7 +13,7 @@ public class RandomVacuum extends Vacuum
 	 */
 	public RandomVacuum()
 	{
-		hunger = 50;
+		hunger = 100;
 
 	}
 
