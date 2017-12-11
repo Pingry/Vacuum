@@ -89,21 +89,19 @@ public class VacuumWorld extends ActorWorld
 			for(int col = 0; col < width; col++)
 			{
 				float randomPercentage = rand.nextFloat();
-				//Place wall randomly only if the spot doesn't have the vacuum cleaner
+				//Place wall or dirt randomly, according to percentages defined above,
+				//but only if the vacuum isn't there.
 				if(randomPercentage < wallChance && !(row == vacRow && col == vacCol))
 				{
 					add(row, col, new Wall());
 				}
-				else if(randomPercentage < wallChance + dirtChance)
+				else if(randomPercentage < wallChance + dirtChance
+					&& !(row == vacRow && col == vacCol))
 				{
 					add(row, col, new Dirt());
 				}
 			}
-
 		}
-
-
-
 	}
 
 	/**
