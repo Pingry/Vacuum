@@ -1,3 +1,5 @@
+
+
 /**
  * This is a vacuum that moves randomly. It turns off once it can't find
  * dirt.
@@ -13,7 +15,7 @@ public class RandomVacuum extends Vacuum
 	 */
 	public RandomVacuum()
 	{
-		hunger = 100;
+		hunger = 1000;
 
 	}
 
@@ -26,7 +28,7 @@ public class RandomVacuum extends Vacuum
 		turnOn();
 
 		if(isDirt())
-			hunger += 10;
+			hunger += 50;
 
 		/*If there is a wall, turns right or left randomly.
 		Also turns right or left randomly roughly 10% of the
@@ -41,11 +43,6 @@ public class RandomVacuum extends Vacuum
 		else
 		{
 			move();
-		}
-
-		if(isDirt())
-		{
-			hunger += 50;
 		}
 
 		hunger--;

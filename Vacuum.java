@@ -32,11 +32,12 @@ public abstract class Vacuum extends Actor
 	     */
 	    public Vacuum()
 	    {
-	        setColor(null);
+	      setColor(null);
 	    	numTurns = 0;
-	        points = 0;
-	        on = false;
-	        onBefore = false;
+	      points = 0;
+	      on = false;
+	      onBefore = false;
+				isDirt = false;
 	    }
 
 			/**
@@ -84,8 +85,6 @@ public abstract class Vacuum extends Actor
 
 	    }
 
-
-
 	     /**
 	     * Turns towards the right.
 	     */
@@ -112,8 +111,6 @@ public abstract class Vacuum extends Actor
 	        numTurns++;
 	    }
 
-
-
 	     /**
 	     * Move one cell forward in the current direction.
 	     */
@@ -130,34 +127,38 @@ public abstract class Vacuum extends Actor
 	        if(dirt instanceof Dirt)
 	        {
 	        	points += 100;
+						isDirt = true;
 	        }
+					else
+					{
+						isDirt = false;
+					}
 
 	        moveTo(getLocation().getAdjacentLocation(getDirection()));
 	        points--;
 	        numTurns++;
 	    }
 
-
-
-
 	    /**
-	     * Turns the vacuum off. 100 point bonus if the vacuum is turned off when on it's
-	     * "home" location. 1000 point penalty is the vacuum has been on for more than 1000 turns.
+	     * Turns the vacuum off. 1000 point penalty if the vacuum turns off not
+			 * at home.
 	     */
 	    public void turnOff()
 	    {
 	        if(!on) { return; }
 
-	        if(isHome())
-	            points += 100;
-
-	        if(numTurns > 1000)
+	        if(!isHome())
 	            points -= 1000;
 
 	        numTurns++;
 	        on = false;
 	    }
-
+			/**
+			* Initializes the vaccum by setting its on variable to true and
+			* setting the home location. Doing this in the constructor is dangerous
+			* because sometimes the Vacuum is not yet actually places in the world
+			* - and thus has no location.
+			*/
 	    public void turnOn()
 	    {
 	    	if(on)
@@ -227,7 +228,7 @@ public abstract class Vacuum extends Actor
 	    private void DENIED(){
 	    	if(checkCheating()){
 	    		// what happens if someone cheats - just put it in here.
-	    		//JOptionPane.showMessageDialog(null, "Cheater!", "You Cheat", JOptionPane.WARNING_MESSAGE);
+	    		JOptionPane.showMessageDialog(null, "Cheater!", "You Cheat", JOptionPane.WARNING_MESSAGE);
 	    	}
 	    }
 	    /**
