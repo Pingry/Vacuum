@@ -6,9 +6,7 @@
  */
 public class RandomVacuum extends Vacuum
 {
-
 	private int hunger;
-
 
 	/**
 	 * The only thing a Random Vac remembers is how many turns there have been.
@@ -30,11 +28,9 @@ public class RandomVacuum extends Vacuum
 		if(isDirt())
 			hunger += 10;
 
-		if(Math.random() < .1)
-		{
-			(Math.random() < .5) ? turnRight(): turnLeft();
-		}
-
+		/*If there is a wall, turns right or left randomly.
+		Also turns right or left randomly roughly 10% of the
+		time even if there is no wall*/
 		if(isBump() || Math.random() < .1)
 		{
 			if(Math.random() > .5)
@@ -47,8 +43,10 @@ public class RandomVacuum extends Vacuum
 			move();
 		}
 
-		if(numTurns > 500)
-			turnOff();
+		if(isDirt())
+		{
+			hunger += 50;
+		}
 
 		hunger--;
 		if(hunger <= 0)
