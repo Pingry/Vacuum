@@ -69,15 +69,16 @@ public class VacuumWorld extends ActorWorld
 		int min = 5;
 
 		//Randomly decide on width and height of World
-		int height = rand.nextInt((max - min + 1) + min);
-		int width = rand.nextInt((max - min + 1) + min);
-
-		//Chance of a given cell being a wall or dirt.
-		//Make these random?
-		double wallChance = .1;
-		double dirtChance = .2;
+		int height = rand.nextInt((max - min + 1)) + min;
+		int width = rand.nextInt((max - min + 1)) + min;
 
 		setGrid(new BoundedGrid<Actor>(height, width));
+
+		//Chance of a given cell being a wall or dirt.
+		//Chance of wall between 5 and 15%
+		double wallChance = .05 + (Random.nextDouble(.1));
+		//Chance of dirt between 10 and 20%
+		double dirtChance = .1 + (Random.nextDouble(.1));
 
 		//Place the vacuum in the grid
 		int vacRow = rand.nextInt(height);
@@ -102,6 +103,12 @@ public class VacuumWorld extends ActorWorld
 				}
 			}
 		}
+	}
+
+	private int numDirt(Location loc)
+	{
+
+
 	}
 
 	/**
