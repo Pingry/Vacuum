@@ -314,7 +314,7 @@ public class AlexVacuum extends Vacuum
 					}
 				}
 			}
-			/
+			*/
 		}
 		
 		if(phase == 1 && myPositionX == homePositionX && myPositionY == homePositionY){
