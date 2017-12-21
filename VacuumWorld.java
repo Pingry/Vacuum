@@ -2,6 +2,7 @@ import info.gridworld.actor.*;
 import info.gridworld.grid.*;
 import info.gridworld.actor.ActorWorld;
 import java.util.Random;
+import java.util.ArrayList;
 
 /**
  * This is a world for running a vacuum.
@@ -13,6 +14,8 @@ import java.util.Random;
  */
 public class VacuumWorld extends ActorWorld
 {
+
+	//All VacuumWorlds must have a vacuum.
 	private Vacuum vac;
 
 
@@ -24,7 +27,6 @@ public class VacuumWorld extends ActorWorld
 	public VacuumWorld(Vacuum vacuum)
 	{
 		vac = vacuum;
-		createWorld();
 	}
 
 	/**
@@ -45,11 +47,15 @@ public class VacuumWorld extends ActorWorld
 	 * @param row Starting row for vacuum
 	 * @param col Starting col for vacuum
 	 */
-	public void placeVac(int row, int col)
+	public void placeVac()
 	{
-		add(new Location(row,col), vac);
+		add(getRandomEmptyLocation(), vac);
 	}
 
+	public void placeVac(int row, int col)
+	{
+		add(new Location(row, col), vac);
+	}
 
 
 	/**
@@ -60,7 +66,9 @@ public class VacuumWorld extends ActorWorld
 		return true;
 	}
 
-	public void createWorld()
+	//setGrid(new BoundedGrid<Actor>(height, width));
+
+	public static BoundedGrid<Actor> createRandomGrid()
 	{
 		Random rand = new Random();
 
@@ -72,18 +80,14 @@ public class VacuumWorld extends ActorWorld
 		int height = rand.nextInt((max - min + 1)) + min;
 		int width = rand.nextInt((max - min + 1)) + min;
 
-		setGrid(new BoundedGrid<Actor>(height, width));
+		//Grid to return
+		BoundedGrid<Actor> grid = new BoundedGrid<Actor>(height, width);
 
 		//Chance of a given cell being a wall or dirt.
 		//Chance of wall between 5 and 15%
-		double wallChance = .05 + (Random.nextDouble(.1));
+		double wallChance = .05 + (Math.random() / 10);
 		//Chance of dirt between 10 and 20%
-		double dirtChance = .1 + (Random.nextDouble(.1));
-
-		//Place the vacuum in the grid
-		int vacRow = rand.nextInt(height);
-		int vacCol = rand.nextInt(width);
-		placeVac(vacRow, vacCol);
+		double dirtChance = .1 + (Math.random() / 10);
 
 		for(int row = 0; row < height; row++)
 		{
@@ -92,24 +96,48 @@ public class VacuumWorld extends ActorWorld
 				float randomPercentage = rand.nextFloat();
 				//Place wall or dirt randomly, according to percentages defined above,
 				//but only if the vacuum isn't there.
-				if(randomPercentage < wallChance && !(row == vacRow && col == vacCol))
+				if(randomPercentage < wallChance)
 				{
-					add(row, col, new Wall());
+					new Wall().putSelfInGrid(grid, new Location(row, col));
+					//add(row, col, new Wall());
 				}
-				else if(randomPercentage < wallChance + dirtChance
-					&& !(row == vacRow && col == vacCol))
+				else if(randomPercentage < wallChance + dirtChance)
 				{
-					add(row, col, new Dirt());
+					new Dirt().putSelfInGrid(grid, new Location(row, col));
+					//add(row, col, new Dirt());
 				}
 			}
 		}
+		return grid;
 	}
 
+	public static BoundedGrid<Actor> gridCopy(BoundedGrid<Actor> other)
+	{
+			BoundedGrid<Actor> grid = new BoundedGrid<Actor>(other.getNumRows(), other.getNumCols());
+			ArrayList<Location> locs = other.getOccupiedLocations();
+			for(Location loc : locs)
+			{
+				Actor actor = other.get(loc);
+				if(actor instanceof Wall)
+				{
+					grid.put(loc, new Wall());
+				}
+				else if(actor instanceof Dirt)
+				{
+					grid.put(loc, new Dirt());
+				}
+			}
+			return grid;
+	}
+
+	/*
+	Commented out. To be finished later for determining how much dirt
+	is around a given spot.
 	private int numDirt(Location loc)
 	{
 
 
-	}
+	}*/
 
 	/**
 	 * On a single iteration of the world, post the score.
