@@ -85,6 +85,14 @@ public abstract class Vacuum extends Actor
 
 	    }
 
+			/**
+			@return Whether or not the vacuum is on.
+			*/
+			public boolean isOn()
+			{
+				return on;
+			}
+
 	     /**
 	     * Turns towards the right.
 	     */
