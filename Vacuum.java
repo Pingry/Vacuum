@@ -5,64 +5,76 @@ import info.gridworld.grid.*;
 /**
  * Represents a vacuum in vacuum world. You should extend
  * this class to make an actual vacuum.
- * 
+ *
  * DO NOT EDIT THIS CODE!
  * @author burkhart
- * @version 0.5
+ * @version 12.10.17
  */
-public abstract class Vacuum extends Actor 
+public abstract class Vacuum extends Actor
 {
 	 private int numTurns;
-	    
+
 	    private int points;
-	    
+
 	    private Location home;
-	    
+
 	    private boolean on;
-	    
+
 	    private boolean onBefore;
-	    
+
+			private boolean isDirt;
+
+
 	    private final String[] methods = {"getLocation","getGrid","getDirection","setDirection","putSelfInGrid","moveTo"};
-	    
+
 	    /**
 	     * Constructs a new Vacuum that is off.
 	     */
 	    public Vacuum()
 	    {
-	        setColor(null);
+	      setColor(null);
 	    	numTurns = 0;
-	        points = 0;
-	        on = false;
-	        onBefore = false;
+	      points = 0;
+	      on = false;
+	      onBefore = false;
+				isDirt = false;
 	    }
-	    
-	    
-	    
-	    
+
+			/**
+			* @return Whether or not the vacuum cleaned dirt by making its
+			* last move. Because GridWorld does not allow multiple actors to
+			* inhabit the same location.
+			*/
+			public boolean isDirt()
+			{
+				return isDirt;
+
+			}
+
 	    /**
 	     * @return Whether or not this vacuum is at it's starting location.
 	     */
-	     
+
 	    public boolean isHome()
 	    {
-	    	
-	        return getLocation().equals(home); 
-	        
+
+	        return getLocation().equals(home);
+
 	    }
-	    
-	    
+
+
 	     /**
 	     * @return True if there is an impediment in front of the vacuum, false otherwise.
 	     */
 	    public boolean isBump()
 	    {
-	        
+
 	    	Grid<Actor> grid = getGrid();
 	    	Location ahead = getLocation().getAdjacentLocation(getDirection());
 	        if(!grid.isValid(ahead))
 	        {
 	        	return true;
-	        	
+
 	        }
 	        Actor wall = grid.get(ahead);
 	        if(wall instanceof Wall)
@@ -70,110 +82,118 @@ public abstract class Vacuum extends Actor
 	        	return true;
 	        }
 	        return false;
-	    
+
 	    }
-	    
-	    
-	    
+
+			/**
+			@return Whether or not the vacuum is on.
+			*/
+			public boolean isOn()
+			{
+				return on;
+			}
+
 	     /**
 	     * Turns towards the right.
 	     */
 	    public void turnRight()
 	    {
 	        if(!on) { return; }
-	        
+
 	        setDirection(getDirection() + Location.RIGHT);
-	      
+
 	        points--;
 	        numTurns++;
 	    }
-	    
+
 	     /**
 	     * Turns towards the left.
 	     */
 	    public void turnLeft()
 	    {
 	    	if(!on) { return; }
-	        
+
 	        setDirection(getDirection() + Location.LEFT);
-	      
+
 	        points--;
 	        numTurns++;
 	    }
-	    
-	    
-	    
+
 	     /**
 	     * Move one cell forward in the current direction.
 	     */
 	    public void move()
 	    {
 	        if(!on) { return; }
-	        
-	        if (isBump()) 
+
+	        if (isBump())
 	        {
 	            return;
 	        }
-	        
+
 	        Actor dirt = getGrid().get(getLocation().getAdjacentLocation(getDirection()));
 	        if(dirt instanceof Dirt)
 	        {
 	        	points += 100;
+						isDirt = true;
 	        }
-	        
+					else
+					{
+						isDirt = false;
+					}
+
 	        moveTo(getLocation().getAdjacentLocation(getDirection()));
 	        points--;
 	        numTurns++;
 	    }
-	    
-	 
-	    
-	    
+
 	    /**
-	     * Turns the vacuum off. 100 point bonus if the vacuum is turned off when on it's
-	     * "home" location. 1000 point penalty is the vacuum has been on for more than 1000 turns.
+	     * Turns the vacuum off. 1000 point penalty if the vacuum turns off not
+			 * at home.
 	     */
 	    public void turnOff()
 	    {
 	        if(!on) { return; }
-	        
-	        if(isHome()) 
-	            points += 100;
-	            
-	        if(numTurns > 1000)
+
+	        if(!isHome())
 	            points -= 1000;
-	        
-	        numTurns++;    
+
+	        numTurns++;
 	        on = false;
 	    }
-	    
+			/**
+			* Initializes the vaccum by setting its on variable to true and
+			* setting the home location. Doing this in the constructor is dangerous
+			* because sometimes the Vacuum is not yet actually places in the world
+			* - and thus has no location.
+			*/
 	    public void turnOn()
 	    {
 	    	if(on)
 	    		return;
-	    	
+
 	    	if(onBefore)
 	    		return;
 	    	else
-	    		onBefore = true;	
-	    	
+	    		onBefore = true;
+
 	    	home = getLocation();
 	    	on = true;
 	    }
-	    
-	  
+
+
 	    /**
 	     * @return The number of points this vacuum has earned.
 	     */
-	    public int getScore() 
-	    { 
+	    public int getScore()
+	    {
 	        if(numTurns > 1000)
 	            return points - 1000;
-	        return points; 
-	    
+	        return points;
+
 	    }
-	    
-	    
+
+
 	    /**
 	     * Act - do whatever the Vacuum wants to do. This method is called whenever
 	     * the 'Step' or 'Run' button gets pressed in the environment. 'Step' calls it once,
@@ -181,14 +201,14 @@ public abstract class Vacuum extends Actor
 	     */
 	    @Override
 	    public void act() {}
-	    
+
 	    /**
-	     * 
+	     *
 	     * @return The name of the vacuum.
 	     */
 	    public abstract String getName();
-	    
-	    
+
+
 	    public Location getLocation(){
 	    	DENIED();
 	    	return super.getLocation();
@@ -216,7 +236,7 @@ public abstract class Vacuum extends Actor
 	    private void DENIED(){
 	    	if(checkCheating()){
 	    		// what happens if someone cheats - just put it in here.
-	    		//JOptionPane.showMessageDialog(null, "Cheater!", "You Cheat", JOptionPane.WARNING_MESSAGE);
+	    		JOptionPane.showMessageDialog(null, "Cheater!", "You Cheat", JOptionPane.WARNING_MESSAGE);
 	    	}
 	    }
 	    /**
@@ -232,11 +252,11 @@ public abstract class Vacuum extends Actor
 	    		String methodName = e.getMethodName();
 	    		for(String bannedMethod : methods)
 	    			// If the method was called.  Checks the next stack element to see if the method was called by a valid class, or the subclass of Vacuum.
-	    			if(bannedMethod.equals(methodName) && elements[i+1].getFileName().equals(this.getClass().getName() + ".java")) 
+	    			if(bannedMethod.equals(methodName) && elements[i+1].getFileName().equals(this.getClass().getName() + ".java"))
 	    					return true;
 	    	}
 	    	return false;
 	    }
-	    
-	
+
+
 }

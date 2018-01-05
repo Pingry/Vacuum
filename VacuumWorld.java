@@ -1,52 +1,37 @@
 import info.gridworld.actor.*;
 import info.gridworld.grid.*;
+import info.gridworld.actor.ActorWorld;
+import java.util.Random;
+import java.util.ArrayList;
 
 /**
  * This is a world for running a vacuum.
- * 
+ *
  * Do not edit any of this code!
- * 
+ *
  * @author burkhart
- * @version 0.21
+ * @version 12.11.17
  */
-public class VacuumWorld extends ActorWorld 
+public class VacuumWorld extends ActorWorld
 {
+
+	//All VacuumWorlds must have a vacuum.
 	private Vacuum vac;
-	
-	
+
+
 	/**
 	 * Creates a default-sized VacuumWorld.
-	 * 
+	 *
 	 * @param vacuum Vacuum to clean the world.
 	 */
 	public VacuumWorld(Vacuum vacuum)
 	{
-		//Default world size of 10x10
-		super(new BoundedGrid<Actor>(10,10));
-		vac = vacuum;			
-	}
-	
-	public VacuumWorld(Vacuum vacuum, int world)
-	{
-		//super
-	}
-	
-	/**
-	 * Creates a VacuumWorld of the specified size.
-	 * 
-	 * @param vacuum Vacuum to clean the world.
-	 * @param r Number of rows in the world.
-	 * @param c Number of columns in the world.
-	 */
-	public VacuumWorld(Vacuum vacuum, int r, int c)
-	{
-		super(new BoundedGrid<Actor>(r, c));
 		vac = vacuum;
 	}
-	
+
 	/**
 	 * Adds an actor to the appropriate place in the World.
-	 * 
+	 *
 	 * @param row Row to add the actor at.
 	 * @param col Column to add the actor at.
 	 * @param a Actor to add to the world.
@@ -56,24 +41,126 @@ public class VacuumWorld extends ActorWorld
 		Location loc = new Location(row, col);
 		super.add(loc, a);
 	}
-	
+
 	/**
 	 * Actually places the vacuum in the world.
 	 * @param row Starting row for vacuum
 	 * @param col Starting col for vacuum
 	 */
+	public void placeVac()
+	{
+		add(getRandomEmptyLocation(), vac);
+	}
+
 	public void placeVac(int row, int col)
 	{
-		add(new Location(row,col), vac);
+		add(new Location(row, col), vac);
 	}
-	
+
+
+	/**
+	 * Consumes any click on the world so it does nothing.
+	 */
+	public boolean locationClicked(Location loc)
+	{
+		return true;
+	}
+
+	//setGrid(new BoundedGrid<Actor>(height, width));
+
+	public static BoundedGrid<Actor> createRandomGrid()
+	{
+		Random rand = new Random();
+
+		//Max and min for possible world dimensions
+		int max = 150;
+		int min = 5;
+
+		//Randomly decide on width and height of World
+		int height = rand.nextInt((max - min + 1)) + min;
+		int width = rand.nextInt((max - min + 1)) + min;
+
+		//Grid to return
+		BoundedGrid<Actor> grid = new BoundedGrid<Actor>(height, width);
+
+		//Chance of a given cell being a wall or dirt.
+		//Chance of wall between 5 and 15%
+		double wallChance = .05 + (Math.random() / 10);
+		//Chance of dirt between 10 and 20%
+		double dirtChance = .1 + (Math.random() / 10);
+
+		for(int row = 0; row < height; row++)
+		{
+			for(int col = 0; col < width; col++)
+			{
+				float randomPercentage = rand.nextFloat();
+				//Place wall or dirt randomly, according to percentages defined above,
+				//but only if the vacuum isn't there.
+				if(randomPercentage < wallChance)
+				{
+					new Wall().putSelfInGrid(grid, new Location(row, col));
+					//add(row, col, new Wall());
+				}
+				else if(randomPercentage < wallChance + dirtChance)
+				{
+					new Dirt().putSelfInGrid(grid, new Location(row, col));
+					//add(row, col, new Dirt());
+				}
+			}
+		}
+		return grid;
+	}
+
+	public static BoundedGrid<Actor> gridCopy(BoundedGrid<Actor> other)
+	{
+			BoundedGrid<Actor> grid = new BoundedGrid<Actor>(other.getNumRows(), other.getNumCols());
+			ArrayList<Location> locs = other.getOccupiedLocations();
+			for(Location loc : locs)
+			{
+				Actor actor = other.get(loc);
+				if(actor instanceof Wall)
+				{
+					grid.put(loc, new Wall());
+				}
+				else if(actor instanceof Dirt)
+				{
+					grid.put(loc, new Dirt());
+				}
+			}
+			return grid;
+	}
+
+	/*
+	Commented out. To be finished later for determining how much dirt
+	is around a given spot.
+	private int numDirt(Location loc)
+	{
+
+
+	}*/
+
+	/**
+	 * On a single iteration of the world, post the score.
+	 */
+	public void step()
+	{
+		setMessage(vac.getName() + ": " + vac.getScore());
+		super.step();
+
+	}
+
+//*************************************************************
+//These methods are leftovers from old iterations of the vaccum
+//project.
+//*************************************************************
+
 	/**
 	 * Adds dirt randomly to the world.
 	 * @param howMany How many pieces of dirt to add.
 	 */
 	public void addRandomDirt(int howMany)
 	{
-		
+
 		Grid<Actor> gr = getGrid();
 		for(int i = 0; i < howMany; i++)
 		{
@@ -89,7 +176,7 @@ public class VacuumWorld extends ActorWorld
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds walls randomly in the world. Note - This could inadvertently
 	 * "trap" an area and make it inaccessible.
@@ -112,7 +199,7 @@ public class VacuumWorld extends ActorWorld
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates a maze-like world.
 	 */
@@ -136,7 +223,7 @@ public class VacuumWorld extends ActorWorld
 		{
 			add(row, 8, new Wall());
 		}
-		
+
 		add(0, 0, new Dirt());
 		add(9, 0, new Dirt());
 		add(13, 0, new Dirt());
@@ -157,10 +244,10 @@ public class VacuumWorld extends ActorWorld
 		add(5, 9, new Dirt());
 		add(9, 9, new Dirt());
 		add(16, 9, new Dirt());
-		
-		
+
+
 	}
-	
+
 	public void roomWorld()
 	{
 		setGrid(new BoundedGrid<Actor>(15, 15));
@@ -170,7 +257,7 @@ public class VacuumWorld extends ActorWorld
 			if(row != 2 && row != 11)
 				add(row, 7, new Wall());
 		}
-		
+
 		for(int col = 7; col < 13; col++)
 		{
 			add(8, col, new Wall());
@@ -180,7 +267,7 @@ public class VacuumWorld extends ActorWorld
 		add(6, 2, new Wall());
 		add(6, 3, new Wall());
 		add(6, 6, new Wall());
-		
+
 		add(2, 0, new Dirt());
 		add(0, 4, new Dirt());
 		add(4, 5, new Dirt());
@@ -202,17 +289,17 @@ public class VacuumWorld extends ActorWorld
 		add(13, 9, new Dirt());
 		add(14, 13, new Dirt());
 	}
-	
-	
+
+
 	public void openSpace()
 	{
 		setGrid(new BoundedGrid<Actor>(20, 20));
 		placeVac(9, 15);
-		
+
 		add(3, 2, new Wall());
 		add(19, 7, new Wall());
 		add(15, 15, new Wall());
-		
+
 		add(2, 0, new Dirt());
 		add(0, 4, new Dirt());
 		add(4, 5, new Dirt());
@@ -234,12 +321,12 @@ public class VacuumWorld extends ActorWorld
 		add(13, 19, new Dirt());
 		add(14, 13, new Dirt());
 	}
-	
+
 	public void random()
 	{
 		setGrid(new BoundedGrid<Actor>(9, 16));
 		placeVac(3, 12);
-		
+
 		add(4, 0, new Wall());
 		add(6, 14, new Wall());
 		add(8, 15, new Wall());
@@ -260,8 +347,8 @@ public class VacuumWorld extends ActorWorld
 		add(4, 13, new Wall());
 		add(3, 9, new Wall());
 		add(4, 6, new Wall());
-		
-		
+
+
 		add(2, 0, new Dirt());
 		add(0, 4, new Dirt());
 		add(4, 5, new Dirt());
@@ -283,24 +370,8 @@ public class VacuumWorld extends ActorWorld
 		add(8, 9, new Dirt());
 		add(6, 13, new Dirt());
 	}
-	
-	/**
-	 * Consumes any click on the world so it does nothing.
-	 */
-	public boolean locationClicked(Location loc)
-	{
-		return true;
-	}
 
-	
-	/**
-	 * On a single iteration of the world, post the score.
-	 */
-	public void step()
-	{
-		setMessage(vac.getName() + ": " + vac.getScore());
-		super.step();
-		
-	}
-	
+
+
+
 }
